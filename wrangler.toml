@@ -1,0 +1,10 @@
+name = "blob-proxy-worker"
+main = "src/index.ts"
+compatibility_date = "2026-05-14"
+
+[vars]
+# Comma-separated hostname allowlist. Supports exact hosts and wildcards like *.example.com.
+# Empty means public proxy mode with private/internal hosts still blocked.
+ALLOWED_BLOB_HOSTS = ""
+MAX_BLOB_BYTES = "10485760"
+FETCH_TIMEOUT_MS = "8000"
