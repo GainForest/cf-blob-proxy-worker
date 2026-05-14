@@ -2,6 +2,10 @@ name = "blob-proxy-worker"
 main = "src/index.ts"
 compatibility_date = "2026-05-14"
 
+[observability.logs]
+enabled = true
+invocation_logs = true
+
 [vars]
 # Comma-separated hostname allowlist. Supports exact hosts and wildcards like *.example.com.
 # Empty means public proxy mode with private/internal hosts still blocked.
