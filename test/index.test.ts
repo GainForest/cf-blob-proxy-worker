@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseSourceUrl, validateHost } from "../src/index";
+import { isAllowedImageContentType, parseImageParams, parseSourceUrl, validateHost } from "../src/index";
 
 describe("parseSourceUrl", () => {
   it("accepts valid https URLs", () => {
@@ -33,5 +33,35 @@ describe("validateHost", () => {
     expect(validateHost(new URL("https://assets.example.com/file.bin"), "assets.example.com").ok).toBe(true);
     expect(validateHost(new URL("https://cdn.example.com/file.bin"), "*.example.com").ok).toBe(true);
     expect(validateHost(new URL("https://evil.com/file.bin"), "*.example.com").ok).toBe(false);
+  });
+});
+
+describe("parseImageParams", () => {
+  it("defaults and rounds width up to allowed sizes", () => {
+    const result = parseImageParams(new URLSearchParams("w=641"));
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.params.width).toBe(750);
+      expect(result.params.quality).toBe(75);
+      expect(result.params.fit).toBe("scale-down");
+      expect(result.params.format).toBe("auto");
+    }
+  });
+
+  it("rejects invalid image params", () => {
+    expect(parseImageParams(new URLSearchParams("q=0")).ok).toBe(false);
+    expect(parseImageParams(new URLSearchParams("q=101")).ok).toBe(false);
+    expect(parseImageParams(new URLSearchParams("fit=stretch")).ok).toBe(false);
+    expect(parseImageParams(new URLSearchParams("format=gif")).ok).toBe(false);
+    expect(parseImageParams(new URLSearchParams("h=99999")).ok).toBe(false);
+  });
+});
+
+describe("isAllowedImageContentType", () => {
+  it("allows safe raster image types and gates svg", () => {
+    expect(isAllowedImageContentType("image/jpeg", false)).toBe(true);
+    expect(isAllowedImageContentType("image/avif", false)).toBe(true);
+    expect(isAllowedImageContentType("image/svg+xml", false)).toBe(false);
+    expect(isAllowedImageContentType("image/svg+xml", true)).toBe(true);
   });
 });
