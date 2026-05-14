@@ -121,8 +121,10 @@ npm run deploy
 - Does not forward cookies or authorization headers to upstream.
 - Adds CORS headers.
 - Returns clean JSON errors with appropriate status codes.
-- Caches successful responses with:
+- Caches successful `/blob` and `/image` responses aggressively because CID-based URLs are effectively immutable.
+- Uses Cloudflare Cache API with deterministic keys, and `/image` also sets Cloudflare image cache TTL to one year.
+- Successful responses use the longest broadly supported browser/edge cache header:
 
 ```txt
-Cache-Control: public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400
+Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable
 ```

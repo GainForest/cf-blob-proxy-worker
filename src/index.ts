@@ -5,7 +5,8 @@ export interface Env {
   ALLOW_SVG?: string;
 }
 
-const CACHE_CONTROL = "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400";
+const ONE_YEAR_SECONDS = 31_536_000;
+const CACHE_CONTROL = `public, max-age=${ONE_YEAR_SECONDS}, s-maxage=${ONE_YEAR_SECONDS}, immutable`;
 const DEFAULT_MAX_BLOB_BYTES = 10 * 1024 * 1024;
 const DEFAULT_TIMEOUT_MS = 8_000;
 const MAX_IMAGE_HEIGHT = 4096;
@@ -169,7 +170,7 @@ async function fetchWithTimeout(sourceUrl: string, timeoutMs: number, kind: "blo
       signal: controller.signal,
       headers: { ...headers, "User-Agent": "cloudflare-worker-blob-proxy/1.0" },
     };
-    const cf = image ? { image: toCfImageOptions(image), cacheEverything: true, cacheTtl: 604800 } : undefined;
+    const cf = image ? { image: toCfImageOptions(image), cacheEverything: true, cacheTtl: ONE_YEAR_SECONDS } : undefined;
     const response = await fetch(sourceUrl, cf ? { ...init, cf } : init);
     if (response.status === 404) return { ok: false, response: jsonError("upstream_not_found", `Upstream ${kind} was not found.`, 404) };
     if (!response.ok) return { ok: false, response: jsonError("upstream_error", `Upstream returned ${response.status}.`, 502) };
